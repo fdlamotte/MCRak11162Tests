@@ -5,3 +5,8 @@
 .vscode/extensions.json
 .vscode/
 .vscode/ipch
+.dummy
+managed_components
+CMakeLists.txt
+dependencies.lock
+sdkconfig.*
