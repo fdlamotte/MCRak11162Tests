@@ -16,8 +16,13 @@ void setup()
 
 void loop()
 {
-  delay(1000);
-  digitalWrite(LED, HIGH);
-  delay(1000);
-  digitalWrite(LED, LOW);
+
+  while (Serial1.available()) {
+    Serial.print(Serial1.read());
+  }
+  while (Serial.available()) {
+    Serial1.print(Serial.read());
+  }
+  delay(10);
+
 }
