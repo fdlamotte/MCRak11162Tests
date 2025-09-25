@@ -60,15 +60,15 @@ protected:
     return false;  // not handled
   }
 
-  // bool handleIncomingMsg(ClientInfo& from, uint32_t timestamp, uint8_t* data, uint flags, size_t len) override {
-  //   if (len > 3 && !memcmp(data, "s> ", 3) && gw_mode != CONFIG) {
-  //     data[len] = 0;
-  //     SERIAL_GW.println((char*)&data[3]);
-  //     return true;
-  //   }
+  bool handleIncomingMsg(ClientInfo& from, uint32_t timestamp, uint8_t* data, uint flags, size_t len) override {
+    if (len > 3 && !memcmp(data, "s> ", 3) && gw_mode != CONFIG) {
+      data[len] = 0;
+      SERIAL_GW.println((char*)&data[3]);
+      return true;
+    }
 
-  //   return SensorMesh::handleIncomingMsg(from, timestamp, data, flags, len);
-  // }
+    return SensorMesh::handleIncomingMsg(from, timestamp, data, flags, len);
+  }
 
   char in_data[156];
   char out_data[160] = "s> ";
@@ -77,33 +77,33 @@ public:
   void loop() {
     SensorMesh::loop();
 
-    while (SERIAL_GW.available()) {
-      char c = SERIAL_GW.read();
-      Serial.print(c);
-    }
-
-    // if (gw_mode != CONFIG) {
-    //   int len = strlen(in_data);
-    //   while (SERIAL_GW.available() && len < 155) {
-    //     char c = SERIAL_GW.read();
-    //     if (c != '\n') {
-    //       in_data[len++] = c;
-    //       in_data[len] = 0;
-    //     }
-    //   }
-    //   if (len == 155) {  // buffer full ... send
-    //     in_data[155] = '\r';
-    //   }
-
-    //   if (len > 0 && in_data[len - 1] == '\r') {  // received complete line
-    //     serial.text[0] = 0; // retrigger serial alert
-    //     in_data[len - 1] = 0;  // replace newline with C string null terminator
-    //     strncpy(&out_data[3], in_data, 156);
-    //     alertIf(true, serial, HIGH_PRI_ALERT, out_data);
-
-    //     in_data[0] = 0;  // reset buffer
-    //   }
+    // while (SERIAL_GW.available()) {
+    //   char c = SERIAL_GW.read();
+    //   Serial.print(c);
     // }
+
+    if (gw_mode != CONFIG) {
+      int len = strlen(in_data);
+      while (SERIAL_GW.available() && len < 155) {
+        char c = SERIAL_GW.read();
+        if (c != '\n') {
+          in_data[len++] = c;
+          in_data[len] = 0;
+        }
+      }
+      if (len == 155) {  // buffer full ... send
+        in_data[155] = '\r';
+      }
+
+      if (len > 0 && in_data[len - 1] == '\r') {  // received complete line
+        serial.text[0] = 0; // retrigger serial alert
+        in_data[len - 1] = 0;  // replace newline with C string null terminator
+        strncpy(&out_data[3], in_data, 156);
+        alertIf(true, serial, HIGH_PRI_ALERT, out_data);
+
+        in_data[0] = 0;  // reset buffer
+      }
+    }
   }
   /* ======================================================================= */
 };
@@ -141,7 +141,7 @@ void setup() {
 
   SERIAL_GW.begin(SERIAL_GW_BAUDRATE);
 
- SERIAL_GW.println("Hello gateway");
+  SERIAL_GW.println("Hello gateway");
   delay(1000);
 
   board.begin();
