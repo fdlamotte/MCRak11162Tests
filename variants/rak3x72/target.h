@@ -15,8 +15,11 @@ class RAK3x72Board : public STM32Board {
 public:
     void begin() override {
         STM32Board::begin();
-        pinMode(PA0, OUTPUT);
-        pinMode(PA1, OUTPUT);
+        pinMode(PA0, OUTPUT);  // ESP_EN
+        pinMode(PB5, OUTPUT);  // IO1
+        pinMode(PA8, OUTPUT);  // IO2
+        pinMode(PA10, OUTPUT); // LED1
+        pinMode(PA1, OUTPUT);  // LED2
     }
 
     const char* getManufacturerName() const override {
@@ -35,12 +38,20 @@ public:
     void setGpio(uint32_t values) override {
         // set led values
         digitalWrite(PA0, values & 1);
-        digitalWrite(PA1, (values & 2) >> 1);
+        digitalWrite(PB5, (values >> 1) & 1);
+        digitalWrite(PA8, (values >> 2) & 1);
+        digitalWrite(PA10, (values >> 3) & 1);
+        digitalWrite(PA1, (values >> 4) & 1);
     }
 
     uint32_t getGpio() override {
         // get led value
-        return (digitalRead(PA1) << 1) | digitalRead(PA0);
+        return digitalRead(PA0)
+            | (digitalRead(PB5)  << 1) 
+            | (digitalRead(PA8)  << 2) 
+            | (digitalRead(PA10) << 3) 
+            | (digitalRead(PA1)  << 4) 
+            ;
     }
 };
 
